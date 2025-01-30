@@ -3,8 +3,8 @@
     <!-- Toolbar -->
     <header class="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white p-4 shadow-lg">
       <div class="max-w-7xl mx-auto flex justify-between items-center">
-        <h1 class="text-2xl font-bold uppercase tracking-wide">Rate your profesor</h1>
-        
+        <h1 class="text-2xl font-bold uppercase tracking-wide">Rate your professor</h1>
+
         <nav class="hidden md:flex space-x-6">
           <router-link to="/" active-class="font-bold underline" class="px-4 py-2 rounded-lg transition duration-300 hover:bg-blue-700">
             Home
@@ -12,12 +12,27 @@
           <router-link to="/profesori" active-class="font-bold underline" class="px-4 py-2 rounded-lg transition duration-300 hover:bg-purple-700">
             Professors
           </router-link>
-          <router-link to="/login" active-class="font-bold underline" class="px-4 py-2 rounded-lg transition duration-300 hover:bg-pink-700">
-            Login
-          </router-link>
-          <router-link to="/register" active-class="font-bold underline" class="px-4 py-2 rounded-lg transition duration-300 hover:bg-teal-700">
-            Register
-          </router-link>
+
+          <!-- Show Login/Register if NOT logged in -->
+          <template v-if="!user">
+            <router-link to="/login" active-class="font-bold underline" class="px-4 py-2 rounded-lg transition duration-300 hover:bg-pink-700">
+              Login
+            </router-link>
+            <router-link to="/register" active-class="font-bold underline" class="px-4 py-2 rounded-lg transition duration-300 hover:bg-teal-700">
+              Register
+            </router-link>
+          </template>
+
+          <!-- Show Username & Logout if logged in -->
+          <template v-else>
+            <span class="px-4 py-2 rounded-lg bg-green-600 text-white font-bold">{{ user.name }}</span>
+            <button 
+              @click="logout"
+              class="px-4 py-2 bg-red-600 rounded-lg text-white font-bold transition duration-300 hover:bg-red-700"
+            >
+              Sign Out
+            </button>
+          </template>
         </nav>
       </div>
     </header>
@@ -35,25 +50,29 @@
 </template>
 
 <script>
-import axios from 'axios';
-
 export default {
   name: "App",
   data() {
     return {
-      apiBaseUrl: "http://localhost:3000"
+      user: null, // Store user data
     };
   },
+  mounted() {
+    this.checkUser();
+  },
   methods: {
-    async fetchData(endpoint) {
-      try {
-        const response = await axios.get(`${this.apiBaseUrl}/${endpoint}`);
-        return response.data;
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        return null;
+    checkUser() {
+      // Check if user is in localStorage
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        this.user = JSON.parse(storedUser);
       }
-    }
-  }
+    },
+    logout() {
+      localStorage.removeItem("user"); // Remove user from storage
+      this.user = null; // Reset user state
+      this.$router.push("/"); // Redirect to home
+    },
+  },
 };
 </script>

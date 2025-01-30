@@ -8,7 +8,7 @@ import Register from './views/Register.vue';
 const routes = [
   { path: '/', component: Home },
   { path: '/profesori', component: Profesori },
-  { path: '/profesor/:id', component: Profesor, props: true }, // Ruta za prikaz profesora
+  { path: '/profesori/:id', component: Profesor, props: true }, // Ruta za prikaz profesora
   { path: '/login', component: Login },
   { path: '/register', component: Register },
 ];

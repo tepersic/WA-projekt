@@ -9,14 +9,12 @@ const db_name = process.env.DB_NAME;
 
 async function connectToDatabase() {
   try {
-    const client = new MongoClient(mongoURI); // stvaramo novi klijent
-    await client.connect(); // spajamo se na klijent
-    console.log('Uspješno spajanje na bazu podataka');
-    let db = client.db(db_name); // odabiremo bazu podataka
-    return db;
+      const client = new MongoClient(mongoURI);
+      await client.connect();
+      return { client, db: client.db(db_name) };
   } catch (error) {
-    console.error('Greška prilikom spajanja na bazu podataka', error);
-    throw error;
+      console.error("Database connection failed:", error);
+      return { client: null, db: null }; // Ensure we return an object
   }
 }
 
