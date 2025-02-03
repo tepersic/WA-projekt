@@ -1,13 +1,13 @@
 <template>
   <div class="max-w-4xl mx-auto p-6">
-    <h2 class="text-3xl font-bold text-gray-800">Popis profesora</h2>
+    <h2 class="text-3xl font-bold text-gray-800">Popis nastavnika</h2>
     
     <ul class="mt-4">
       <li v-for="profesor in profesori" :key="profesor._id" class="border-b py-4">
         <router-link :to="'/profesori/' + profesor._id" class="text-blue-600 hover:underline">
           <h3 class="text-xl font-semibold">{{ profesor.profesor }}</h3>
         </router-link>
-        <p class="text-gray-600">Fakultet: {{ profesor.fakultet }}</p>
+        <p class="text-gray-600">Organizacijska jedinica: {{ profesor.fakultet }}</p>
       </li>
     </ul>
   </div>

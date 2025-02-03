@@ -10,7 +10,7 @@
             Home
           </router-link>
           <router-link to="/profesori" active-class="font-bold underline" class="px-4 py-2 rounded-lg transition duration-300 hover:bg-purple-700">
-            Professors
+            Nastavnici
           </router-link>
 
           <!-- Show Login/Register if NOT logged in -->
