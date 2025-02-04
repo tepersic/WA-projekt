@@ -1,15 +1,31 @@
 <template>
-  <div class="max-w-4xl mx-auto p-6">
-    <h2 class="text-3xl font-bold text-gray-800">Popis nastavnika</h2>
-    
-    <ul class="mt-4">
-      <li v-for="profesor in profesori" :key="profesor._id" class="border-b py-4">
-        <router-link :to="'/profesori/' + profesor._id" class="text-blue-600 hover:underline">
-          <h3 class="text-xl font-semibold">{{ profesor.profesor }}</h3>
+  <div class="max-w-6xl mx-auto p-6">
+    <h2 class="text-3xl font-bold text-gray-800 mb-6">Popis nastavnika</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div v-for="profesor in profesori" :key="profesor._id" class="bg-white shadow-lg rounded-lg p-4 hover:shadow-xl transition-shadow">
+        <router-link :to="'/profesori/' + profesor._id" class="block">
+          <!-- Profile Image -->
+          <div class="flex items-center space-x-4">
+            <img 
+              v-if="profesor.slika"
+              :src="profesor.slika"
+              alt="Profesor"
+              class="w-16 h-16 rounded-full object-cover border"
+            />
+            <div v-else class="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center text-gray-700 font-bold text-lg">
+              {{ profesor.profesor.charAt(0) }}
+            </div>
+
+            <!-- Profesor Info -->
+            <div>
+              <h3 class="text-lg font-semibold text-gray-800 hover:text-blue-600">{{ profesor.profesor }}</h3>
+              <p class="text-gray-600 text-sm">{{ profesor.fakultet }}</p>
+            </div>
+          </div>
         </router-link>
-        <p class="text-gray-600">Organizacijska jedinica: {{ profesor.fakultet }}</p>
-      </li>
-    </ul>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -34,3 +50,7 @@ export default {
   }
 };
 </script>
+
+<style>
+/* Optional styling for better UX */
+</style>

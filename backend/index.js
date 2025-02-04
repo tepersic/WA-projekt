@@ -4,12 +4,22 @@ import { connectToDatabase } from './db.js';
 import { ObjectId } from 'mongodb';
 import dotenv from 'dotenv';
 import userRoutes from './routes/userRoutes.js';
+import { authenticateUser } from './middleware/authMiddleware.js';
 dotenv.config();
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:5173", // Allow requests from frontend
+    credentials: true  // Allow cookies and authentication headers
+}));
 app.use('/api', userRoutes);
-
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "http://localhost:5173"); // Frontend URL
+    res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.header("Access-Control-Allow-Credentials", "true"); // Allow credentials (token, cookies)
+    next();
+});
 
 let db;
 async function initializeDatabase() {
@@ -18,6 +28,15 @@ async function initializeDatabase() {
 }
 initializeDatabase();
 const PORT = 3000;
+
+
+app.get('/auth/user', authenticateUser, (req, res) => {
+    if (req.user) {  // Assuming you're using some kind of auth middleware
+      res.json(req.user);  // Return user data
+    } else {
+      res.status(401).json({ message: 'Unauthorized' });
+    }
+  });
 
 app.get('/profesori', async (req, res) => {
   try {
@@ -94,27 +113,58 @@ app.post('/komentari', async (req, res) => {
 });
 
 // Dodaj komentar za profesora
-app.post('/profesori/:id/komentari', async (req, res) => {
+// Dodaj komentar za profesora
+app.post('/profesori/:id/komentari', authenticateUser, async (req, res) => {
     const { ocjena, tekst } = req.body;
+    const userId = req.user.id; // Get user ID from the token
+
+    // Validate input
     if (!ocjena || !tekst) {
         return res.status(400).json({ error: "Svi podaci su obavezni" });
     }
 
-    const noviKomentar = {
-        profesorId: req.params.id,
-        ocjena: parseInt(ocjena),
-        tekst
-    };
+    if (isNaN(ocjena) || ocjena < 1 || ocjena > 10) {
+        return res.status(400).json({ error: "Ocjena mora biti broj između 1 i 10" });
+    }
 
     try {
-        await db.collection('komentari').insertOne(noviKomentar);
-        res.json(noviKomentar);
+        const komentariCollection = db.collection('komentari');
+        const usersCollection = db.collection('korisnici'); // Assuming users collection is called 'korisnici'
+
+        // Check if user already commented
+        const existingComment = await komentariCollection.findOne({ profesorId: req.params.id, userId });
+
+        if (existingComment) {
+            // Update existing comment
+            await komentariCollection.updateOne(
+                { profesorId: req.params.id, userId },
+                { $set: { ocjena: parseInt(ocjena), tekst } }
+            );
+            return res.json({ message: "Komentar ažuriran!" });
+        }
+
+        // Get user details
+        const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+        if (!user) {
+            return res.status(400).json({ error: "Korisnik nije pronađen" });
+        }
+
+        // Insert new comment
+        const noviKomentar = {
+            profesorId: req.params.id,
+            userId, // Store user ID
+            userName: user.name, // Store the user's name
+            ocjena: parseInt(ocjena),
+            tekst
+        };
+
+        await komentariCollection.insertOne(noviKomentar);
+        res.status(201).json(noviKomentar);
     } catch (error) {
         console.error("Greška pri dodavanju komentara:", error);
         res.status(500).json({ error: "Interna greška servera" });
     }
 });
-
 app.use('/api', userRoutes);
 
 

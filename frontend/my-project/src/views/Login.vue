@@ -3,7 +3,12 @@
     <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-sm">
       <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Login</h2>
 
-      <!-- Login Forma -->
+      <!-- Error Message -->
+      <div v-if="errorMessage" class="text-red-600 text-center mb-4">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Login Form -->
       <form @submit.prevent="handleLogin">
         <div class="mb-4">
           <label for="email" class="block text-gray-600">Email</label>
@@ -30,9 +35,11 @@
 
         <button
           type="submit"
+          :disabled="loading"
           class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300"
         >
-          Login
+          <span v-if="!loading">Login</span>
+          <span v-else>Loading...</span>
         </button>
       </form>
 
@@ -46,35 +53,46 @@
 
 <script>
 import axios from "axios";
-import API_BASE_URL from '../config.js';
+import API_BASE_URL from "../config.js";
 
 export default {
   data() {
     return {
       email: "",
       password: "",
+      loading: false,
+      errorMessage: null,
     };
+  },
+  created() {
+    const user = localStorage.getItem("user");
+    if (user) {
+      this.$router.push("/profesori");
+    }
   },
   methods: {
     async handleLogin() {
+      this.loading = true;
+      this.errorMessage = null;
+
       try {
-        const response = await axios.post(`${API_BASE_URL}/api/login`, {
-          email: this.email,
-          password: this.password,
-        });
+        const response = await axios.post(
+          `${API_BASE_URL}/api/login`,
+          { email: this.email, password: this.password },
+          { withCredentials: true }
+        );
 
         const userData = response.data;
-
-        // Save user data in localStorage
         localStorage.setItem("user", JSON.stringify(userData));
 
-        // Redirect to Profesori.vue
         this.$router.push("/profesori").then(() => {
-          window.location.reload(); // Refresh the page to update UI
+          window.location.reload();
         });
       } catch (error) {
         console.error("Login error:", error.response?.data?.message || error.message);
-        alert("Invalid credentials, please try again.");
+        this.errorMessage = error.response?.data?.message || "Invalid credentials, please try again.";
+      } finally {
+        this.loading = false;
       }
     },
   },

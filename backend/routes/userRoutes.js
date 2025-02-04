@@ -1,12 +1,15 @@
-import bcrypt from 'bcrypt';
+import bcrypt1 from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { authenticateUser } from '../middleware/authMiddleware.js';
 import { connectToDatabase } from '../db.js'; // Import the updated function
 
 dotenv.config();
 
 const router = express.Router();
+
 
 router.post('/korisnici', async (req, res) => {
     try {
@@ -45,6 +48,7 @@ router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
 
+        // Connect to the database
         const { client, db } = await connectToDatabase();
         const usersCollection = db.collection('korisnici');
 
@@ -62,16 +66,25 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
-        // Generate JWT Token
+        // Generate JWT Token with 1-hour expiration
         const token = jwt.sign({ id: user._id, name: user.name }, process.env.JWT_SECRET || "secret", { expiresIn: "1h" });
+
+        // Close the database connection
         client.close();
 
-        res.json({ name: user.name, email: user.email, token });
+        // Respond with user data and token
+        res.json({
+            name: user.name,
+            email: user.email,
+            token,
+        });
     } catch (error) {
         console.error("Login error:", error);
         res.status(500).json({ message: "Server error" });
     }
 });
+
+
 
 router.get('/profesori', async (req, res) => {
     try {
