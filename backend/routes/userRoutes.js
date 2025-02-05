@@ -22,11 +22,18 @@ router.post('/korisnici', async (req, res) => {
         const { client, db } = await connectToDatabase();
         const usersCollection = db.collection('korisnici');
 
-        // Check if user already exists
+        // Check if user already exists with the same email
         const existingUser = await usersCollection.findOne({ email });
         if (existingUser) {
             client.close();
             return res.status(400).json({ message: "User already exists" });
+        }
+
+        // Check if nickname (name) is already taken
+        const existingNickname = await usersCollection.findOne({ name });
+        if (existingNickname) {
+            client.close();
+            return res.status(400).json({ message: "Nickname already taken. Please choose another one." });
         }
 
         // Hash password
@@ -43,6 +50,8 @@ router.post('/korisnici', async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 });
+
+
 
 router.post('/login', async (req, res) => {
     try {

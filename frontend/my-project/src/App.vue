@@ -3,7 +3,10 @@
     <!-- Toolbar -->
     <header class="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white p-4 shadow-lg">
       <div class="max-w-7xl mx-auto flex justify-between items-center">
-        <h1 class="text-2xl font-bold uppercase tracking-wide">Rate your professor</h1>
+        <div class="flex items-center space-x-3">
+          <img src="/LOGO2.png" alt="Rate Your Professor Logo" class="h-10 w-10">
+          <h1 class="text-2xl font-bold uppercase tracking-wide">Rate your professor</h1>
+        </div>
 
         <nav class="hidden md:flex space-x-6">
           <router-link to="/" active-class="font-bold underline" class="px-4 py-2 rounded-lg transition duration-300 hover:bg-blue-700">
@@ -38,13 +41,13 @@
     </header>
 
     <!-- Main content -->
-    <main class="flex-grow p-8">
+    <main class="flex-1">
       <router-view></router-view>
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-white p-4 text-center">
-      <p>&copy; 2025 My Modern Vue App</p>
+    <footer class="bg-gray-800 text-white p-4 text-center mt-auto">
+      <p>&copy; 2025 Rate your Profesor app</p>
     </footer>
   </div>
 </template>

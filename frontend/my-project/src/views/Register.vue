@@ -3,7 +3,7 @@
     <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-sm">
       <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Register</h2>
 
-      <!-- Registracijska forma -->
+      <!-- Registration Form -->
       <form @submit.prevent="handleRegister">
         <div class="mb-4">
           <label for="name" class="block text-gray-600">Nickname</label>
@@ -14,7 +14,11 @@
             class="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
             placeholder="Enter your nickname"
             required
+            maxlength="20"
           />
+          <div v-if="nicknameError" class="text-red-600 text-sm mt-2">
+            {{ nicknameError }}
+          </div>
         </div>
         <div class="mb-4">
           <label for="email" class="block text-gray-600">Email</label>
@@ -53,6 +57,7 @@
         <button
           type="submit"
           class="w-full bg-teal-600 text-white py-3 rounded-lg hover:bg-teal-700 transition duration-300"
+          :disabled="loading"
         >
           Register
         </button>
@@ -77,6 +82,8 @@ export default {
       email: '',
       password: '',
       confirmPassword: '',
+      loading: false,
+      nicknameError: null,
     };
   },
   methods: {
@@ -92,17 +99,33 @@ export default {
       }
 
       try {
-        await axios.post(`${API_BASE_URL}/api/korisnici`, {
+        this.loading = true;
+
+        // Call the backend API to register the user
+        const response = await axios.post(`${API_BASE_URL}/api/korisnici`, {
           name: this.name,
           email: this.email,
-          password: this.password // Plain text, backend će hashirati
+          password: this.password, // Plain text, backend will hash it
         });
 
-        alert('Registration successful!');
+        alert(response.data.message);
         this.$router.push('/login');
       } catch (error) {
         console.error('Error during registration:', error);
-        alert('Registration failed');
+        if (error.response && error.response.data) {
+          const errorMessage = error.response.data.message;
+          if (errorMessage === "Nickname already taken. Please choose another one.") {
+            this.nicknameError = 'This nickname is already taken. Please choose another one.';
+          } else if (errorMessage === "User already exists") {
+            alert('A user with this email already exists.');
+          } else {
+            alert('Registration failed: ' + errorMessage);
+          }
+        } else {
+          alert('Registration failed due to a server error.');
+        }
+      } finally {
+        this.loading = false;
       }
     }
   }

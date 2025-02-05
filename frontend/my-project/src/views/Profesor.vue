@@ -1,74 +1,101 @@
 <template>
   <div class="max-w-6xl mx-auto p-6">
     <!-- Back button -->
-    <button @click="$router.go(-1)" class="bg-gray-500 text-white px-4 py-2 rounded mb-4">
+    <button @click="$router.go(-1)" class="bg-gray-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-gray-700 mb-4 transition-colors">
       ← Natrag
     </button>
 
-    <div class="flex flex-col md:flex-row gap-8">
+    <div class="flex flex-col md:flex-row gap-12">
       <!-- Left Side: Professor Info -->
-      <div class="md:w-1/2 h-fit sticky top-6 self-start">
-        <h2 class="text-3xl font-bold text-gray-800">{{ profesor.profesor }}</h2>
-        <img v-if="profesor.slika" :src="profesor.slika" alt="Profesor" class="w-48 h-48 rounded-full my-4">
-        <p class="text-gray-600">Organizacijska jedinica: {{ profesor.fakultet }}</p>
-        <p class="text-gray-700 font-semibold">Zvanje: {{ profesor.zvanje }}</p>
+      <div class="md:w-1/2 h-fit md:sticky top-6 self-start order-1 md:order-1 mb-8 md:mb-0 space-y-8">
+        <!-- Professor Info Card -->
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+          <h2 class="text-4xl font-bold text-gray-900">{{ profesor.profesor }}</h2>
+          <img v-if="profesor.slika" :src="profesor.slika" alt="Profesor" class="w-48 h-48 rounded-full my-6 mx-auto shadow-lg transition-transform transform hover:scale-105">
+          <div class="space-y-2">
+            <p class="text-gray-700 text-lg">Organizacijska jedinica: <span class="font-semibold text-gray-800">{{ profesor.fakultet }}</span></p>
+            <p class="text-gray-800 font-semibold text-lg">Zvanje: <span class="text-gray-900">{{ profesor.zvanje }}</span></p>
+          </div>
 
-        <!-- Rating -->
-        <div class="flex items-center mt-2">
-          <p class="text-gray-700 font-semibold text-lg">{{ izracunajProsjek() }}/10</p>
-          <span class="ml-2 text-yellow-500 text-xl">
-            <span v-for="index in 10" :key="index">
-              {{ index <= Math.round(izracunajProsjek()) ? '⭐' : '☆' }}
+          <!-- Rating -->
+          <div class="flex items-center mt-6">
+            <p class="text-gray-800 font-semibold text-xl">{{ izracunajProsjek() }}/10</p>
+            <span class="ml-3 text-yellow-500 text-2xl">
+              <span v-for="index in 10" :key="index">
+                {{ index <= Math.round(izracunajProsjek()) ? '⭐' : '☆' }}
+              </span>
             </span>
-          </span>
+          </div>
         </div>
 
-        <h3 class="text-lg font-semibold mt-4">Prijediplomski kolegiji:</h3>
-        <ul>
-          <li v-for="(kolegij, index) in profesor.prijediplomski_kolegij" :key="index">{{ kolegij }}</li>
-        </ul>
+        <!-- Courses Sections -->
+        <div class="space-y-6">
+          <div class="bg-white p-6 rounded-lg shadow-lg">
+            <h3 class="text-xl font-semibold">Prijediplomski kolegiji:</h3>
+            <ul class="list-disc pl-5 text-gray-700">
+              <li v-for="(kolegij, index) in profesor.prijediplomski_kolegij" :key="index">{{ kolegij }}</li>
+            </ul>
+          </div>
 
-        <h3 class="text-lg font-semibold mt-4">Diplomski kolegiji:</h3>
-        <ul>
-          <li v-for="(kolegij, index) in profesor.diplomski_kolegij" :key="index">{{ kolegij }}</li>
-        </ul>
+          <div class="bg-white p-6 rounded-lg shadow-lg">
+            <h3 class="text-xl font-semibold">Diplomski kolegiji:</h3>
+            <ul class="list-disc pl-5 text-gray-700">
+              <li v-for="(kolegij, index) in profesor.diplomski_kolegij" :key="index">{{ kolegij }}</li>
+            </ul>
+          </div>
+        </div>
       </div>
 
       <!-- Right Side: Comment Form + Comments -->
-      <div class="md:w-1/2">
+      <div class="md:w-1/2 order-2 md:order-2">
         <!-- Comment Form -->
-        <div class="mb-6 p-4 border rounded-lg bg-gray-100">
-          <h3 class="text-lg font-semibold">Dodaj komentar i ocjenu</h3>
+        <div class="mb-8 p-6 border rounded-lg bg-gray-100 shadow-lg">
+          <h3 class="text-xl font-semibold text-gray-800">Dodaj komentar i ocjenu</h3>
 
           <div v-if="isLoggedIn">
-            <input v-model="novaOcjena" type="number" min="1" max="10" class="border p-2 w-20 rounded" placeholder="Ocjena">
-            <textarea v-model="noviKomentar" class="border p-2 w-full mt-2 rounded" placeholder="Unesi komentar"></textarea>
-            <button @click="posaljiKomentar" class="bg-blue-600 text-white px-4 py-2 mt-2 rounded w-full">Pošalji</button>
+            <div class="flex items-center gap-4 mb-4">
+              <input v-model="novaOcjena" type="number" min="1" max="10" class="border p-3 w-24 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ocjena">
+              <textarea v-model="noviKomentar" maxlength="400" class="border p-3 w-full rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Unesi komentar"></textarea>
+            </div>
+            <!-- Character count -->
+            <p class="text-gray-500 text-sm">{{ noviKomentar.length }}/400</p>
+            <button @click="posaljiKomentar" class="bg-blue-600 text-white px-6 py-3 mt-4 rounded-lg shadow-md hover:bg-blue-700 transition-colors w-full">Pošalji</button>
           </div>
-          <p v-else class="text-red-600 font-semibold">Morate biti prijavljeni da biste ostavili komentar.</p>
+          <p v-else class="text-red-600 font-semibold mt-4">Morate biti prijavljeni da biste ostavili komentar.</p>
         </div>
 
-      <!-- Comments List -->
-<div>
-  <h3 class="text-lg font-semibold">Komentari</h3>
-  <ul>
-    <li v-for="(komentar, index) in profesor.komentari" :key="index" class="border-b py-4 flex items-start gap-4">
-      <!-- Comment Header -->
-      <div class="flex items-center gap-3">
-        <p class="text-blue-600 font-semibold">{{ komentar.userName }}</p> <!-- User's name -->
-        <span class="text-gray-500">{{ komentar.ocjena }}/10</span> <!-- Rating -->
-      </div>
-      
-      <!-- Comment Text -->
-      <p class="mt-2 text-gray-700">{{ komentar.tekst }}</p>
-    </li>
-  </ul>
-</div>
+        <!-- Comments List -->
+        <div>
+          <h3 class="text-xl font-semibold text-gray-800">Komentari</h3>
+          <ul>
+            <li v-for="(komentar, index) in profesor.komentari" :key="index" class="py-6 px-6 mb-4 bg-white rounded-lg shadow-md hover:bg-gray-50 transition-colors">
+              <!-- Comment Card -->
+              <div class="space-y-4">
+                <!-- User's Name -->
+                <p class="text-blue-600 font-semibold text-lg">{{ komentar.userName }}</p>
+                
+                <!-- Rating -->
+                <div class="flex items-center gap-2 text-gray-500">
+                  <span>{{ komentar.ocjena }}/10</span>
+                  <span class="text-yellow-500 text-xl">
+                    <span v-for="index in 10" :key="index">
+                      {{ index <= Math.round(komentar.ocjena) ? '⭐' : '☆' }}
+                    </span>
+                  </span>
+                </div>
+
+                <!-- Comment Text -->
+                <div class="text-gray-700 break-words">
+                  {{ komentar.tekst }}
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 </template>
-
 <script>
 import axios from "axios";
 import API_BASE_URL from "../config.js";
