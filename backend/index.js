@@ -31,12 +31,12 @@ const PORT = 3000;
 
 
 app.get('/auth/user', authenticateUser, (req, res) => {
-    if (req.user) {  // Assuming you're using some kind of auth middleware
-      res.json(req.user);  // Return user data
+    if (req.user) {
+        res.json({ ...req.user, admin: req.user.admin }); // Include admin status
     } else {
-      res.status(401).json({ message: 'Unauthorized' });
+        res.status(401).json({ message: 'Unauthorized' });
     }
-  });
+});
 
 app.get('/profesori', async (req, res) => {
   try {
@@ -90,29 +90,7 @@ app.get('/profesori/:id', async (req, res) => {
   }
 });
 
-app.post('/komentari', async (req, res) => {
-  try {
-      const { profesorId, ocjena, tekst } = req.body;
 
-      if (!profesorId || !ocjena || !tekst) {
-          return res.status(400).json({ error: "Svi podaci su obavezni" });
-      }
-
-      const noviKomentar = {
-          profesorId: profesorId,  // Spremi kao string, MongoDB _id je string
-          ocjena: parseInt(ocjena),
-          tekst: tekst
-      };
-
-      const result = await db.collection('komentari').insertOne(noviKomentar);
-      res.status(201).json(noviKomentar);
-  } catch (error) {
-      console.error("Greška pri dodavanju komentara:", error);
-      res.status(500).json({ error: "Interna greška servera" });
-  }
-});
-
-// Dodaj komentar za profesora
 // Dodaj komentar za profesora
 app.post('/profesori/:id/komentari', authenticateUser, async (req, res) => {
     const { ocjena, tekst } = req.body;

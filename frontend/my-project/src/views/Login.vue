@@ -83,7 +83,9 @@ export default {
         );
 
         const userData = response.data;
+        // Store user data and admin status in localStorage
         localStorage.setItem("user", JSON.stringify(userData));
+        localStorage.setItem("admin", userData.admin);  // Store the admin status
 
         this.$router.push("/profesori").then(() => {
           window.location.reload();

@@ -71,8 +71,14 @@
             <li v-for="(komentar, index) in profesor.komentari" :key="index" class="py-6 px-6 mb-4 bg-white rounded-lg shadow-md hover:bg-gray-50 transition-colors">
               <!-- Comment Card -->
               <div class="space-y-4">
-                <!-- User's Name -->
-                <p class="text-blue-600 font-semibold text-lg">{{ komentar.userName }}</p>
+                <!-- User's Name + Delete Button -->
+                <div class="flex justify-between items-center">
+                  <p class="text-blue-600 font-semibold text-lg">{{ komentar.userName }}</p>
+                  <!-- Only show delete button for admins -->
+                  <button v-if="isAdmin" @click="deleteComment(komentar.id)" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300">
+                    Delete
+                  </button>
+                </div>
                 
                 <!-- Rating -->
                 <div class="flex items-center gap-2 text-gray-500">
@@ -96,6 +102,7 @@
     </div>
   </div>
 </template>
+
 <script>
 import axios from "axios";
 import API_BASE_URL from "../config.js";
@@ -110,6 +117,7 @@ export default {
       novaOcjena: "",
       noviKomentar: "",
       isLoggedIn: false, // Check if user is logged in
+      isAdmin: false, // Check if the user is an admin
       userId: null, // Logged-in user ID
     };
   },
@@ -136,6 +144,7 @@ export default {
         if (userResponse.data) {
           console.log("User data:", userResponse.data);  // Debugging line
           this.isLoggedIn = true;
+          this.isAdmin = userResponse.data.role === 'admin'; // Check if user is admin
           this.userId = userResponse.data.id;
         } else {
           console.log("User not found with this token.");  // Debugging line
@@ -206,6 +215,27 @@ export default {
       } catch (error) {
         console.error("Greška pri slanju komentara:", error);
         alert("Došlo je do pogreške pri slanju komentara.");
+      }
+    },
+
+    async deleteComment(commentId) {
+      const confirmed = confirm("Are you sure you want to delete this comment?");
+      if (confirmed) {
+        try {
+          // Make the delete request
+          await axios.delete(`${API_BASE_URL}/profesori/${this.$route.params.id}/komentari/${commentId}`, {
+            withCredentials: true,
+          });
+
+          // Refresh the comments list after deleting
+          const response = await axios.get(
+            `${API_BASE_URL}/profesori/${this.$route.params.id}`
+          );
+          this.profesor = response.data;
+        } catch (error) {
+          console.error("Error deleting comment:", error);
+          alert("Došlo je do pogreške pri brisanju komentara.");
+        }
       }
     },
   },

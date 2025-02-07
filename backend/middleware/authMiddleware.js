@@ -15,3 +15,13 @@ export const authenticateUser = (req, res, next) => {
         return res.status(400).json({ error: "Invalid token." });
     }
 };
+
+export const checkAdmin = (req, res, next) => {
+    // Check if the user has the admin role
+    if (!req.user.admin) {
+        return res.status(403).json({ error: "Access denied. Admins only." });
+    }
+
+    // Proceed to the next middleware/route handler
+    next();
+};
