@@ -13,8 +13,14 @@
           <h2 class="text-4xl font-bold text-gray-900">{{ profesor.profesor }}</h2>
           <img v-if="profesor.slika" :src="profesor.slika" alt="Profesor" class="w-48 h-48 rounded-full my-6 mx-auto shadow-lg transition-transform transform hover:scale-105">
           <div class="space-y-2">
-            <p class="text-gray-700 text-lg">Organizacijska jedinica: <span class="font-semibold text-gray-800">{{ profesor.fakultet }}</span></p>
-            <p class="text-gray-800 font-semibold text-lg">Zvanje: <span class="text-gray-900">{{ profesor.zvanje }}</span></p>
+            <p class="text-gray-700 text-lg">
+              Organizacijska jedinica:
+              <span class="font-semibold text-gray-800">{{ profesor.fakultet }}</span>
+            </p>
+            <p class="text-gray-800 font-semibold text-lg">
+              Zvanje:
+              <span class="text-gray-900">{{ profesor.zvanje }}</span>
+            </p>
           </div>
 
           <!-- Rating -->
@@ -33,14 +39,18 @@
           <div class="bg-white p-6 rounded-lg shadow-lg">
             <h3 class="text-xl font-semibold">Prijediplomski kolegiji:</h3>
             <ul class="list-disc pl-5 text-gray-700">
-              <li v-for="(kolegij, index) in profesor.prijediplomski_kolegij" :key="index">{{ kolegij }}</li>
+              <li v-for="(kolegij, index) in profesor.prijediplomski_kolegij" :key="index">
+                {{ kolegij }}
+              </li>
             </ul>
           </div>
 
           <div class="bg-white p-6 rounded-lg shadow-lg">
             <h3 class="text-xl font-semibold">Diplomski kolegiji:</h3>
             <ul class="list-disc pl-5 text-gray-700">
-              <li v-for="(kolegij, index) in profesor.diplomski_kolegij" :key="index">{{ kolegij }}</li>
+              <li v-for="(kolegij, index) in profesor.diplomski_kolegij" :key="index">
+                {{ kolegij }}
+              </li>
             </ul>
           </div>
         </div>
@@ -54,32 +64,59 @@
 
           <div v-if="isLoggedIn">
             <div class="flex items-center gap-4 mb-4">
-              <input v-model="novaOcjena" type="number" min="1" max="10" class="border p-3 w-24 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ocjena">
-              <textarea v-model="noviKomentar" maxlength="400" class="border p-3 w-full rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Unesi komentar"></textarea>
+              <input
+                v-model="novaOcjena"
+                type="number"
+                min="1"
+                max="10"
+                class="border p-3 w-24 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ocjena"
+              >
+              <textarea
+                v-model="noviKomentar"
+                maxlength="400"
+                class="border p-3 w-full rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Unesi komentar"
+              ></textarea>
             </div>
             <!-- Character count -->
             <p class="text-gray-500 text-sm">{{ noviKomentar.length }}/400</p>
-            <button @click="posaljiKomentar" class="bg-blue-600 text-white px-6 py-3 mt-4 rounded-lg shadow-md hover:bg-blue-700 transition-colors w-full">Pošalji</button>
+            <button
+              @click="posaljiKomentar"
+              class="bg-blue-600 text-white px-6 py-3 mt-4 rounded-lg shadow-md hover:bg-blue-700 transition-colors w-full"
+            >
+              Pošalji
+            </button>
           </div>
-          <p v-else class="text-red-600 font-semibold mt-4">Morate biti prijavljeni da biste ostavili komentar.</p>
+          <p v-else class="text-red-600 font-semibold mt-4">
+            Morate biti prijavljeni da biste ostavili komentar.
+          </p>
         </div>
 
         <!-- Comments List -->
         <div>
           <h3 class="text-xl font-semibold text-gray-800">Komentari</h3>
           <ul>
-            <li v-for="(komentar, index) in profesor.komentari" :key="index" class="py-6 px-6 mb-4 bg-white rounded-lg shadow-md hover:bg-gray-50 transition-colors">
+            <li
+              v-for="(komentar, index) in profesor.komentari"
+              :key="index"
+              class="py-6 px-6 mb-4 bg-white rounded-lg shadow-md hover:bg-gray-50 transition-colors"
+            >
               <!-- Comment Card -->
               <div class="space-y-4">
                 <!-- User's Name + Delete Button -->
                 <div class="flex justify-between items-center">
                   <p class="text-blue-600 font-semibold text-lg">{{ komentar.userName }}</p>
                   <!-- Only show delete button for admins -->
-                  <button v-if="isAdmin" @click="deleteComment(komentar.id)" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300">
+                  <button
+                    v-if="isAdmin"
+                    @click="deleteComment(komentar._id)"
+                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300"
+                  >
                     Delete
                   </button>
                 </div>
-                
+
                 <!-- Rating -->
                 <div class="flex items-center gap-2 text-gray-500">
                   <span>{{ komentar.ocjena }}/10</span>
@@ -117,50 +154,44 @@ export default {
       novaOcjena: "",
       noviKomentar: "",
       isLoggedIn: false, // Check if user is logged in
-      isAdmin: false, // Check if the user is an admin
-      userId: null, // Logged-in user ID
+      isAdmin: false,    // Boolean admin flag returned from API
+      userId: null,      // Logged-in user ID
+      token: null,       // Save token for subsequent requests
     };
   },
   async created() {
-    try {
-      // Fetch professor data
-      const response = await axios.get(
-        `${API_BASE_URL}/profesori/${this.$route.params.id}`
-      );
-      this.profesor = response.data;
+  try {
+    // Fetch professor data
+    const response = await axios.get(
+      `${API_BASE_URL}/profesori/${this.$route.params.id}`
+    );
+    this.profesor = response.data;
 
-      // Check if the user is logged in by retrieving the token from localStorage
-      const user = JSON.parse(localStorage.getItem("user"));  // Get the user object
+    // Check if the user is logged in by retrieving the token from localStorage
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user && user.token) {
+      this.token = user.token;
 
-      if (user && user.token) {
-        const token = user.token;  // Get the token from the user object
-        console.log("Token found:", token);  // Debugging line
+      const userResponse = await axios.get(`${API_BASE_URL}/auth/user`, {
+        headers: { Authorization: `Bearer ${this.token}` },
+        withCredentials: true,
+      });
 
-        const userResponse = await axios.get(`${API_BASE_URL}/auth/user`, {
-          headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        });
-
-        if (userResponse.data) {
-          console.log("User data:", userResponse.data);  // Debugging line
-          this.isLoggedIn = true;
-          this.isAdmin = userResponse.data.role === 'admin'; // Check if user is admin
-          this.userId = userResponse.data.id;
-        } else {
-          console.log("User not found with this token.");  // Debugging line
-        }
-      } else {
-        console.log("No token found in user object.");  // Debugging line
-      }
-    } catch (error) {
-      console.error("Greška pri dohvaćanju podataka:", error);
-      if (error.response) {
-        console.error("Error Response:", error.response);
-        console.error("Error Status:", error.response.status);
-        console.error("Error Data:", error.response.data);
+      if (userResponse.data) {
+        this.isLoggedIn = true;
+        this.isAdmin = userResponse.data.admin; // Use the boolean value returned by the API for admin status
+        this.userId = userResponse.data.id;
       }
     }
-  },
+  } catch (error) {
+    console.error("Greška pri dohvaćanju podataka:", error);
+    if (error.response) {
+      console.error("Error Response:", error.response);
+      console.error("Error Status:", error.response.status);
+      console.error("Error Data:", error.response.data);
+    }
+  }
+},
   methods: {
     izracunajProsjek() {
       if (!this.profesor.komentari || this.profesor.komentari.length === 0) {
@@ -172,25 +203,18 @@ export default {
       );
       return (suma / this.profesor.komentari.length).toFixed(1);
     },
-    
+
     async posaljiKomentar() {
       if (!this.novaOcjena || !this.noviKomentar) {
         alert("Unesite ocjenu i komentar!");
         return;
       }
-
-      // Ensure user is logged in and the token is available
-      const user = JSON.parse(localStorage.getItem("user"));
-      const token = user ? user.token : null;
-
-      if (!token) {
+      if (!this.token) {
         console.log("No token found in localStorage");
         alert("Morate biti prijavljeni da biste ostavili komentar.");
         return;
       }
-
       try {
-        // Send the comment with the token in the Authorization header
         await axios.post(
           `${API_BASE_URL}/profesori/${this.$route.params.id}/komentari`,
           {
@@ -198,18 +222,18 @@ export default {
             tekst: this.noviKomentar,
           },
           {
-            headers: { Authorization: `Bearer ${token}` },
-            withCredentials: true, // Ensure credentials are sent
+            headers: { Authorization: `Bearer ${this.token}` },
+            withCredentials: true,
           }
         );
 
-        // Optionally update only comments
+        // Refresh the professor data (and comments list)
         const response = await axios.get(
           `${API_BASE_URL}/profesori/${this.$route.params.id}`
         );
         this.profesor = response.data;
 
-        // Reset the input fields
+        // Reset input fields
         this.novaOcjena = "";
         this.noviKomentar = "";
       } catch (error) {
@@ -219,25 +243,27 @@ export default {
     },
 
     async deleteComment(commentId) {
-      const confirmed = confirm("Are you sure you want to delete this comment?");
-      if (confirmed) {
-        try {
-          // Make the delete request
-          await axios.delete(`${API_BASE_URL}/profesori/${this.$route.params.id}/komentari/${commentId}`, {
-            withCredentials: true,
-          });
-
-          // Refresh the comments list after deleting
-          const response = await axios.get(
-            `${API_BASE_URL}/profesori/${this.$route.params.id}`
-          );
-          this.profesor = response.data;
-        } catch (error) {
-          console.error("Error deleting comment:", error);
-          alert("Došlo je do pogreške pri brisanju komentara.");
+  const confirmed = confirm("Are you sure you want to delete this comment?");
+  if (confirmed) {
+    try {
+      await axios.delete(
+        `${API_BASE_URL}/api/${this.$route.params.id}/komentari/${commentId}`,
+        {
+          headers: { Authorization: `Bearer ${this.token}` },
+          withCredentials: true,
         }
-      }
-    },
+      );
+      // Refresh the comments list after deletion
+      const response = await axios.get(
+        `${API_BASE_URL}/profesori/${this.$route.params.id}`
+      );
+      this.profesor = response.data;
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      alert("Došlo je do pogreške pri brisanju komentara.");
+    }
+  }
+},
   },
 };
 </script>

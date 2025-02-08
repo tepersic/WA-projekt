@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 flex items-center justify-center">
     <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-sm">
-      <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Login</h2>
+      <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Prijava</h2>
 
       <!-- Error Message -->
       <div v-if="errorMessage" class="text-red-600 text-center mb-4">

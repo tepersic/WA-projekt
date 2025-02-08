@@ -3,16 +3,37 @@
     <h2 class="text-3xl font-bold mb-6 text-gray-900">Manage Users</h2>
     <!-- Users List -->
     <div v-if="users.length > 0" class="space-y-6">
-      <div v-for="user in users" :key="user._id" class="bg-white p-6 rounded-lg shadow-lg flex justify-between items-center">
-        <div class="space-x-4">
-          <p class="text-gray-900 font-semibold">{{ user.name }}</p>
+      <div
+        v-for="user in users"
+        :key="user._id"
+        class="bg-white p-6 rounded-lg shadow-lg flex flex-wrap items-center justify-between gap-4"
+      >
+        <!-- User Info -->
+        <div>
+          <p class="text-gray-900 font-semibold flex items-center gap-2">
+           {{ user.name }}
+           <!-- Role Tag -->
+           <span
+           v-if="user.admin" 
+            class="px-2 py-1 bg-green-600 text-white text-sm font-bold rounded-lg"
+            >
+             Admin
+            </span>
+           <span
+            v-else
+            class="px-2 py-1 bg-blue-600 text-white text-sm font-bold rounded-lg"
+            >
+            Normal
+           </span>
+           </p>
           <p class="text-gray-600">{{ user.email }}</p>
           <p class="text-gray-500">{{ user.role }}</p>
         </div>
-        <div class="space-x-4">
+
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap gap-2">
           <!-- Promote button -->
           <button
-            
             @click="promoteUser(user._id)"
             class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-300"
           >
@@ -20,7 +41,6 @@
           </button>
           <!-- Demote button -->
           <button
-            
             @click="demoteUser(user._id)"
             class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition duration-300"
           >
@@ -58,24 +78,26 @@ export default {
   },
   methods: {
     async fetchUsers() {
-      try {
-        const token = JSON.parse(localStorage.getItem("user"))?.token;
-        if (!token) {
-          alert("You are not authorized to view this page.");
-          return;
-        }
-        const response = await axios.get(`${API_BASE_URL}/api/korisnici`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          withCredentials: true,
-        });
-        this.users = response.data;
-      } catch (error) {
-        console.error("Error fetching users:", error);
-        alert("Failed to load users.");
+    try {
+      const token = JSON.parse(localStorage.getItem("user"))?.token;
+      if (!token) {
+        alert("You are not authorized to view this page.");
+        return;
       }
-    },
+      const response = await axios.get(`${API_BASE_URL}/api/korisnici`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      });
+      // Ensure the admin field is part of the response
+      this.users = response.data;
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      alert("Failed to load users.");
+    }
+  },
+
     async promoteUser(userId) {
       try {
         const token = JSON.parse(localStorage.getItem("user"))?.token;

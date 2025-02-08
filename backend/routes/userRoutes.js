@@ -1,4 +1,3 @@
-import bcrypt1 from 'bcrypt';
 import { ObjectId } from 'mongodb';  // Add this import
 import bcrypt from 'bcryptjs';
 import express from 'express';
@@ -202,25 +201,31 @@ router.delete('/korisnici/:id', authenticateUser, checkAdmin, async (req, res) =
     }
 });
 
-// Delete a comment
-router.delete('/komentari/:id', authenticateUser, checkAdmin, async (req, res) => {
+
+router.delete('/:profesorId/komentari/:id', authenticateUser, checkAdmin, async (req, res) => {
+    console.log("DELETE comment endpoint hit:", req.params); // Debug log
     try {
-        const { client, db } = await connectToDatabase();
-        const commentsCollection = db.collection('komentari');
-
-        const result = await commentsCollection.findOneAndDelete({ _id: new ObjectId(req.params.id) });
-        if (!result.value) {
-            client.close();
-            return res.status(404).json({ message: "Comment not found." });
-        }
-
-        client.close();
-        res.json({ message: "Comment deleted successfully." });
+      const { client, db } = await connectToDatabase();
+      const commentsCollection = db.collection('komentari');
+      
+      // Optionally, verify that the comment belongs to the given profesorId here
+  
+      const result = await commentsCollection.findOneAndDelete({ _id: new ObjectId(req.params.id) });
+      client.close();
+  
+      // Instead of returning a 404 when no comment is found, return a success response
+      if (!result.value) {
+        return res.json({ message: "Comment not found or already deleted." });
+      }
+  
+      return res.json({ message: "Comment deleted successfully." });
     } catch (error) {
-        console.error("Error deleting comment:", error);
-        res.status(500).json({ message: "Server error" });
+      console.error("Error deleting comment:", error);
+      return res.status(500).json({ message: "Server error" });
     }
-});
+  });
+  
+  
 
 // Admin dashboard for managing users
 router.get('/korisnici', authenticateUser, checkAdmin, async (req, res) => {
