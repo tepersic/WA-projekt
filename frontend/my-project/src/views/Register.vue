@@ -1,18 +1,18 @@
 <template>
   <div class="min-h-screen bg-gradient-to-r from-green-500 via-teal-600 to-blue-500 flex items-center justify-center">
     <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-sm">
-      <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Register</h2>
+      <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Registracija</h2>
 
-      <!-- Registration Form -->
+      <!-- Forma za registraciju -->
       <form @submit.prevent="handleRegister">
         <div class="mb-4">
-          <label for="name" class="block text-gray-600">Nickname</label>
+          <label for="name" class="block text-gray-600">Nadimak</label>
           <input
             type="text"
             id="name"
             v-model="name"
             class="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-            placeholder="Enter your nickname"
+            placeholder="Unesite svoj nadimak"
             required
             maxlength="20"
           />
@@ -27,29 +27,29 @@
             id="email"
             v-model="email"
             class="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-            placeholder="Enter your email"
+            placeholder="Unesite svoj email"
             required
           />
         </div>
         <div class="mb-4">
-          <label for="password" class="block text-gray-600">Password</label>
+          <label for="password" class="block text-gray-600">Lozinka</label>
           <input
             type="password"
             id="password"
             v-model="password"
             class="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-            placeholder="Create a password"
+            placeholder="Kreirajte lozinku"
             required
           />
         </div>
         <div class="mb-6">
-          <label for="confirmPassword" class="block text-gray-600">Confirm Password</label>
+          <label for="confirmPassword" class="block text-gray-600">Potvrdite lozinku</label>
           <input
             type="password"
             id="confirmPassword"
             v-model="confirmPassword"
             class="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-            placeholder="Confirm your password"
+            placeholder="Potvrdite svoju lozinku"
             required
           />
         </div>
@@ -59,13 +59,13 @@
           class="w-full bg-teal-600 text-white py-3 rounded-lg hover:bg-teal-700 transition duration-300"
           :disabled="loading"
         >
-          Register
+          Registriraj se
         </button>
       </form>
 
       <p class="mt-4 text-center text-sm text-gray-600">
-        Already have an account? 
-        <router-link to="/login" class="text-teal-600 hover:underline">Login here</router-link>
+        Već imate račun? 
+        <router-link to="/login" class="text-teal-600 hover:underline">Prijavite se ovdje</router-link>
       </p>
     </div>
   </div>
@@ -89,40 +89,40 @@ export default {
   methods: {
     async handleRegister() {
       if (this.password !== this.confirmPassword) {
-        alert('Passwords do not match');
+        alert('Lozinke se ne podudaraju');
         return;
       }
 
       if (this.password.length < 6) {
-        alert('Password must be at least 6 characters long');
+        alert('Lozinka mora imati najmanje 6 znakova');
         return;
       }
 
       try {
         this.loading = true;
 
-        // Call the backend API to register the user
-        const response = await axios.post(`${API_BASE_URL}/api/korisnici`, {
+        // Poziv backend API-ja za registraciju korisnika
+        const response = await axios.post(`${API_BASE_URL}/api/registracija`, {
           name: this.name,
           email: this.email,
-          password: this.password, // Plain text, backend will hash it
+          password: this.password, // Plain text, backend će hashirati
         });
 
         alert(response.data.message);
         this.$router.push('/login');
       } catch (error) {
-        console.error('Error during registration:', error);
+        console.error('Greška tijekom registracije:', error);
         if (error.response && error.response.data) {
           const errorMessage = error.response.data.message;
           if (errorMessage === "Nickname already taken. Please choose another one.") {
-            this.nicknameError = 'This nickname is already taken. Please choose another one.';
+            this.nicknameError = 'Ovaj nadimak je već zauzet. Molimo odaberite drugi.';
           } else if (errorMessage === "User already exists") {
-            alert('A user with this email already exists.');
+            alert('Korisnik s ovim emailom već postoji.');
           } else {
-            alert('Registration failed: ' + errorMessage);
+            alert('Registracija nije uspjela: ' + errorMessage);
           }
         } else {
-          alert('Registration failed due to a server error.');
+          alert('Registracija nije uspjela zbog pogreške na serveru.');
         }
       } finally {
         this.loading = false;

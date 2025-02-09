@@ -80,7 +80,7 @@ export default {
   },
   async created() {
     try {
-      const response = await axios.get(`${API_BASE_URL}/profesori`);
+      const response = await axios.get(`${API_BASE_URL}/profesori/`);
       this.profesori = response.data;
     } catch (error) {
       console.error("Greška pri dohvaćanju profesora:", error);

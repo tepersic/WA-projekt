@@ -12,7 +12,7 @@ dotenv.config();
 const router = express.Router();
 
 
-router.post('/korisnici', async (req, res) => {
+router.post('/registracija', async (req, res) => {
     try {
         const { name, email, password } = req.body;
         
@@ -107,19 +107,6 @@ router.post('/login', async (req, res) => {
   });
 
 
-router.get('/profesori', async (req, res) => {
-    try {
-        const { client, db } = await connectToDatabase();
-        const profesoriCollection = db.collection('profesori'); // Ensure collection exists
-        const profesori = await profesoriCollection.find().toArray();
-        client.close();
-
-        res.json(profesori);
-    } catch (error) {
-        console.error("Error fetching professors:", error);
-        res.status(500).json({ message: "Server error" });
-    }
-});
 
 router.post('/korisnici/:id/promote', authenticateUser, checkAdmin, async (req, res) => {
     try {

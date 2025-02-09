@@ -9,12 +9,29 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(cors({
-    origin: "http://localhost:5173", // Allow requests from frontend
-    credentials: true  // Allow cookies and authentication headers
+    origin: function (origin, callback) {
+        const allowedOrigins = [
+            "http://localhost:5173", // Local development
+            "https://your-production-domain.com" // Replace with your production frontend URL
+        ];
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    credentials: true // Allow cookies and authentication headers
 }));
-app.use('/api', userRoutes);
+
 app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "http://localhost:5173"); // Frontend URL
+    const allowedOrigins = [
+        "http://localhost:5173", // Local development
+        "https://your-production-domain.com" // Replace with your production frontend URL
+    ];
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+        res.header("Access-Control-Allow-Origin", origin);
+    }
     res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
     res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
     res.header("Access-Control-Allow-Credentials", "true"); // Allow credentials (token, cookies)
@@ -144,7 +161,6 @@ app.post('/profesori/:id/komentari', authenticateUser, async (req, res) => {
     }
 });
 app.use('/api', userRoutes);
-
 
 app.listen(PORT, () => {
     console.log(`Server radi na portu ${PORT}`);
