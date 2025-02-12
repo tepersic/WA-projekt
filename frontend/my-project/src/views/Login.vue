@@ -87,7 +87,9 @@ export default {
         localStorage.setItem("user", JSON.stringify(userData));
         localStorage.setItem("admin", userData.admin); // Pohrani admin status
 
-        this.$router.push("/profesori");
+       this.$router.push("/profesori").then(() => {
+          window.location.reload();
+        });
       } catch (error) {
         console.error("Greška prilikom prijave:", error.response?.data?.message || error.message);
         this.errorMessage = error.response?.data?.message || "Neispravni podaci, pokušajte ponovno.";
