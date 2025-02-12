@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col min-h-screen">
     <!-- Toolbar -->
-    <header class="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white p-4 shadow-lg">
+    <header class="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white p-4 shadow-lg fixed w-full z-50">
       <div class="max-w-7xl mx-auto flex justify-between items-center">
         <!-- Logo and Title -->
         <div class="flex items-center space-x-3">
@@ -95,7 +95,7 @@
     </header>
 
     <!-- Main Content -->
-    <main class="flex-1">
+    <main class="flex-1 mt-16">
       <router-view></router-view>
     </main>
 
