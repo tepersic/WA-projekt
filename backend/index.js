@@ -12,7 +12,7 @@ app.use(cors({
     origin: function (origin, callback) {
         const allowedOrigins = [
             "http://localhost:5173", // Local development
-            "https://wa-projekt-frontend.onrender.com" // Replace with your production frontend URL
+            "https://www.rateyourprofessor.work.gd" // Replace with your production frontend URL
         ];
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
